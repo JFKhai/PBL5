@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Model weights (optional, uncomment if you don't want to include weights)
+# *.pt
+# *.h5
+
+# Custom directories
+captured_images/
+data/test/images/
+data/characters/*/
+doc/
+*.jpg
+*.png
+*.mp4
+*.avi
+.DS_Store
+
+# Dataset và model weights (uncomment nếu không muốn push lên)
+# data/characters/
+# data/test/
+# *.pt
+# *.h5
+
+# Logs và cache
+*.log
+logs/
+wandb/
+
+# Test results
+results/
+runs/
