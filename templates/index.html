@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>License Plate Recognition</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .video-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .controls {
+            margin: 20px 0;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin: 0 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>License Plate Recognition System</h1>
+        
+        <div class="controls">
+            <button onclick="startVideo()">Start Camera</button>
+            <button onclick="stopVideo()">Stop Camera</button>
+        </div>
+
+        <div class="video-container">
+            <img id="video-feed" src="" alt="Video Feed">
+        </div>
+
+        <div class="results">
+            <h2>Detected License Plates</h2>
+            <table id="results-table">
+                <thead>
+                    <tr>
+                        <th>Plate Number</th>
+                        <th>Confidence</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let isStreaming = false;
+
+        function startVideo() {
+            isStreaming = true;
+            document.getElementById('video-feed').src = '/video_feed';
+        }
+
+        function stopVideo() {
+            isStreaming = false;
+            document.getElementById('video-feed').src = '';
+        }
+
+        function addResult(plateNumber, confidence) {
+            const table = document.getElementById('results-table').getElementsByTagName('tbody')[0];
+            const row = table.insertRow(0);
+            const time = new Date().toLocaleTimeString();
+            
+            row.innerHTML = `
+                <td>${plateNumber}</td>
+                <td>${(confidence * 100).toFixed(2)}%</td>
+                <td>${time}</td>
+            `;
+        }
+    </script>
+</body>
+</html>
