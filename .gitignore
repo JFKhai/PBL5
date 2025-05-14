@@ -48,7 +48,7 @@ venv.bak/
 
 # Custom directories
 captured_images/
-data/test/images/
+# data/test/images/
 data/characters/*/
 doc/
 *.jpg

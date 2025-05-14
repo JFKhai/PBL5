@@ -2,22 +2,16 @@ import cv2
 import os
 import numpy as np
 import torch
-
+from license_plate_cha import getChar
 from detect import detect
 from models.experimental import attempt_load
-from src.char_classification.model import CNN_Model
-from utils_LP import character_recog_CNN, crop_n_rotate_LP
+from utils_LP import crop_n_rotate_LP
 
 # ====== Cài đặt ban đầu ======
 save_dir = "captured_images"
 os.makedirs(save_dir, exist_ok=True)
 
-CHAR_CLASSIFICATION_WEIGHTS = './src/weights/weight.h5'
 LP_weights = 'best_yolo7.pt'
-
-# Load mô hình nhận diện ký tự
-model_char = CNN_Model(trainable=False).model
-model_char.load_weights(CHAR_CLASSIFICATION_WEIGHTS)
 
 # Kiểm tra thiết bị
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -26,7 +20,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model_LP = attempt_load(LP_weights, map_location=device)
 
 # ====== Mở webcam ======
-cap = cv2.VideoCapture(0)  # Camera mặc định
+cap = cv2.VideoCapture(0)  # Camera thứ hai
 
 # Cài đặt thông số camera
 desired_width = 1280   # Độ phân giải HD
@@ -72,8 +66,8 @@ while True:
 
         pred, LP_detected_img = detect(model_LP, source_img, device, imgsz=640)
 
-        cv2.imshow('Input', cv2.resize(source_img, dsize=None, fx=0.5, fy=0.5))
-        cv2.imshow('LP Detected', cv2.resize(LP_detected_img, dsize=None, fx=0.5, fy=0.5))
+        # cv2.imshow('Input', cv2.resize(source_img, dsize=None, fx=0.5, fy=0.5))
+        # cv2.imshow('LP Detected', cv2.resize(LP_detected_img, dsize=None, fx=0.5, fy=0.5))
 
         c = 0
         for *xyxy, conf, cls in reversed(pred):
@@ -82,61 +76,12 @@ while True:
             if rotate_thresh is None or LP_rotated is None:
                 continue
 
-            cv2.imshow('LP Rotated', LP_rotated)
-            cv2.imshow('Threshold', rotate_thresh)
-
-            # Tìm các contour của ký tự
-            LP_rotated_copy = LP_rotated.copy()
-            cont, _ = cv2.findContours(rotate_thresh, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
-            cont = sorted(cont, key=cv2.contourArea, reverse=True)[:17]
-            cv2.drawContours(LP_rotated_copy, cont, -1, (100, 255, 255), 2)
-
-            # Lọc và sắp xếp các ký tự
-            char_x = []
-            roiarea = LP_rotated.shape[0] * LP_rotated.shape[1]
+            # cv2.imshow('LP Rotated', LP_rotated)
+            save_path = f'captured_images/hehe.jpg'
+            cv2.imwrite(save_path, LP_rotated)
+            print(f"Đã lưu ảnh biển số: {save_path}")
+            print(getChar(save_path))
             
-            for cnt in cont:
-                x, y, w, h = cv2.boundingRect(cnt)
-                ratiochar = w / h
-                char_area = w * h
-                if (Min_char < char_area < Max_char) and (0.25 < ratiochar < 0.7):
-                    char_x.append([x, y, w, h])
-
-            if not char_x:
-                continue
-
-            char_x = np.array(char_x)
-            threshold_12line = char_x[:, 1].min() + (char_x[:, 3].mean() / 2)
-            char_x = sorted(char_x, key=lambda x: x[0])
-
-            # Nhận dạng từng ký tự
-            first_line = ""
-            second_line = ""
-            
-            for i, char in enumerate(char_x):
-                x, y, w, h = char
-                cv2.rectangle(LP_rotated, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                imgROI = rotate_thresh[y:y + h, x:x + w]
-                cv2.imshow('Character ROI', imgROI)
-                
-                text = character_recog_CNN(model_char, imgROI)
-                if text == 'Background':
-                    text = ''
-                
-                if y < threshold_12line:
-                    first_line += text
-                else:
-                    second_line += text
-
-            plate_text = first_line + second_line
-            print(f"Biển số xe {c + 1}: {plate_text}")
-            cv2.putText(LP_detected_img, plate_text, (x1, y1 - 20), cv2.FONT_HERSHEY_DUPLEX, 2, (255, 255, 0), 2)
-            cv2.imshow('Characters', LP_rotated_copy)
-            cv2.imshow(f'License Plate {c + 1}', LP_rotated)
-            c += 1
-
-        cv2.imshow('Final Result', cv2.resize(LP_detected_img, dsize=None, fx=0.5, fy=0.5))
-        image_count += 1
 
     elif key == ord('q'):
         print("Thoát chương trình.")
